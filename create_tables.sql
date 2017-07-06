@@ -60,3 +60,54 @@ BEGIN
         (DEFAULT,NEW.userID, "profilePic", OLD.profilePic, NEW.profilePic, NOW());
     END IF;
 END;
+
+CREATE TABLE posts (
+    postID INT PRIMARY KEY AUTO_INCREMENT,
+    userID INT,
+    title VARCHAR(20),
+    description VARCHAR(64),
+    pstatus INT,
+    rejectionMsg VARCHAR(20),
+    summeryReply INT,
+    relatedProject INT
+);
+
+ALTER TABLE posts
+ADD FOREIGN KEY (userID) REFERENCES users(userID);
+
+CREATE TABLE post_attachments (
+    postID INT,
+    link_to_file VARCHAR(20),
+    PRIMARY KEY(postID,link_to_file)
+);
+
+ALTER TABLE post_attachments
+ADD FOREIGN KEY (postID) REFERENCES posts(postID);
+
+CREATE TABLE replies (
+    repID INT PRIMARY KEY AUTO_INCREMENT,
+    rtext VARCHAR(20)
+);
+
+CREATE TABLE summary_replies (
+    srepID INT PRIMARY KEY AUTO_INCREMENT,
+    srtext VARCHAR(20),
+    creationTime TIMESTAMP
+);
+
+ALTER TABLE posts
+ADD FOREIGN KEY (summeryReply) REFERENCES summary_replies(srepID);
+
+CREATE TABLE comments (
+    comID INT PRIMARY KEY AUTO_INCREMENT,
+    userID INT,
+    ctext VARCHAR(20),
+    ctime TIMESTAMP
+);
+
+ALTER TABLE comments
+ADD FOREIGN KEY (userID) REFERENCES users(userID);
+
+
+
+
