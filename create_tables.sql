@@ -108,6 +108,146 @@ CREATE TABLE comments (
 ALTER TABLE comments
 ADD FOREIGN KEY (userID) REFERENCES users(userID);
 
+CREATE TABLE projects (
+    projID INT PRIMARY KEY AUTO_INCREMENT,
+    userID INT,
+    projTitle VARCHAR(10),
+    description VARCHAR(20),
+    projStatus INT
+);
 
+ALTER TABLE projects
+ADD FOREIGN KEY (userID) REFERENCES users(userID);
+
+CREATE TABLE project_images (
+    projID INT,
+    link_to_image VARCHAR(20),
+    PRIMARY KEY(projID,link_to_image)
+);
+
+ALTER TABLE project_images
+ADD FOREIGN KEY (projID) REFERENCES projects(projID);
+
+CREATE TABLE organizations (
+    orgID INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(10),
+    description VARCHAR(20),
+    hashedPassword VARCHAR(40),
+    logo BLOB,
+    credits INT,
+    isDeleted TINYINT(1)
+);
+
+CREATE TABLE organization_phones (
+    orgID INT,
+    phone INT,
+    PRIMARY KEY(orgID,phone);
+);
+
+ALTER TABLE organization_phones
+ADD FOREIGN KEY (orgID) REFERENCES organizations(orgID);
+
+CREATE TABLE organization_addresses (
+    orgID INT,
+    address VARCHAR(30),
+    PRIMARY KEY(orgID,address);
+);
+
+ALTER TABLE organization_addresses
+ADD FOREIGN KEY (orgID) REFERENCES organizations(orgID);
+
+CREATE TABLE organization_emails (
+    orgID INT,
+    email VARCHAR(20),
+    PRIMARY KEY(orgID,email);
+);
+
+ALTER TABLE organization_emails
+ADD FOREIGN KEY (orgID) REFERENCES organizations(orgID);
+
+CREATE TABLE organization_profile_changelogs (
+    logID INT PRIMARY KEY AUTO_INCREMENT,
+    orgID INT,
+    fieldName VARCHAR(20),
+    oldValue VARCHAR(20),
+    newValue VARCHAR(20),
+    updateDate DATETIME
+);
+
+ALTER TABLE organization_profile_changelogs
+ADD FOREIGN KEY (orgID) REFERENCES organizations(orgID);
+
+-- TODO : FIX TRIGGER
+
+CREATE TRIGGER update_organization_profile AFTER UPDATE on organizations
+FOR EACH ROW
+BEGIN
+    IF (NEW.name != OLD.name) THEN
+        INSERT INTO organization_profile_changelogs
+        VALUES 
+        (DEFAULT,NEW.orgID, "name", OLD.name, NEW.name, NOW());
+    END IF;
+END;
+
+CREATE TABLE ads (
+    adID INT PRIMARY KEY AUTO_INCREMENT,
+    orgID INT,
+    adTitle VARCHAR(10),
+    adText VARCHAR(20),
+    viewPrice INT,
+    clickPrice INT
+);
+
+ALTER TABLE ads
+ADD FOREIGN KEY (orgID) REFERENCES organizations(orgID);
+
+CREATE TABLE ad_images (
+    adID INT,
+    link_to_image VARCHAR(20),
+    PRIMARY KEY(adID,link_to_image)
+);
+
+ALTER TABLE ad_images
+ADD FOREIGN KEY (adID) REFERENCES ads(adID);
+
+CREATE TABLE categories (
+    catID INT PRIMARY KEY AUTO_INCREMENT,
+    cName VARCHAR(20)
+);
+
+CREATE TABLE advertise_constrains (
+    constID INT PRIMARY KEY AUTO_INCREMENT,
+    ageFrom INT,
+    ageTo INT,
+    tagConstrain INT
+);
+
+ALTER TABLE advertise_constrains
+ADD FOREIGN KEY (tagConstrain) REFERENCES categories(catID);
+
+CREATE TABLE supports (
+    suppID INT PRIMARY KEY AUTO_INCREMENT,
+    fristName VARCHAR(10),
+    lastName VARCHAR(10),
+    profilePic BLOB,
+    isOnline TINYINT(1)
+);
+
+CREATE TABLE increase_credits_log (
+    incID INT PRIMARY KEY AUTO_INCREMENT,
+    orgID INT,
+    suppID INT,
+    amount INT,
+    bankTrackingCode VARCHAR(20),
+    accountNumber INT,
+    transationTime TIMESTAMP,
+    incStatus INT
+);
+
+ALTER TABLE increase_credits_log
+ADD FOREIGN KEY (orgID) REFERENCES organizations(orgID);
+
+ALTER TABLE increase_credits_log
+ADD FOREIGN KEY (suppID) REFERENCES supports(suppID);
 
 
